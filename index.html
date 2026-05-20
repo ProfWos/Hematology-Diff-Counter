@@ -1,49 +1,154 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Differential Cell Counter</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <h1 class="title">🧬 Differential Cell Counter</h1>
-    <p class="instructions">Click or tap a cell below to increase the count. Use the keyboard shortcuts shown. Caps Lock must be ON.</p>
 
-    <label for="muteToggle" style="font-size: 16px; margin-bottom: 20px; display: block;">
-      🔈 <input type="checkbox" id="muteToggle"> Mute Voice
+    <p class="instructions">
+        Click or tap a cell below to increase the count.
+        Use the keyboard shortcuts shown.
+        Caps Lock must be ON.
+    </p>
+
+    <!-- Mute Toggle -->
+    <label for="muteToggle" style="font-size:16px; margin-bottom:20px; display:block;">
+        🔈 <input type="checkbox" id="muteToggle">
+        Mute Voice
     </label>
 
-    <div id="capsLockWarning" style="display: none;">Caps Lock is OFF — Please Turn It ON!</div>
+    <!-- Enable Sound Button -->
+    <button id="enableSoundButton" onclick="enableSound()">
+        Enable Sound
+    </button>
 
-    <!-- Caps Lock warning beep only -->
-    <audio id="capsBeep" src="https://www.soundjay.com/buttons/sounds/beep-03.mp3" preload="auto"></audio>
+    <br><br>
 
-    <div id="computer">
-        <div id="screen">
-            <div id="cellsWrapper">
-                <div class="cell"><div class="cellType">Seg <span class="cellKey">( / )</span></div><div class="cellCount" id="Seg">0</div></div>
-                <div class="cell"><div class="cellType">Band <span class="cellKey">( . )</span></div><div class="cellCount" id="Band">0</div></div>
-                <div class="cell"><div class="cellType">Lymph <span class="cellKey">( , )</span></div><div class="cellCount" id="Lymph">0</div></div>
-                <div class="cell"><div class="cellType">Mono <span class="cellKey">( M )</span></div><div class="cellCount" id="Mono">0</div></div>
-                <div class="cell"><div class="cellType">Eos <span class="cellKey">( N )</span></div><div class="cellCount" id="Eos">0</div></div>
-                <div class="cell"><div class="cellType">Baso <span class="cellKey">( B )</span></div><div class="cellCount" id="Baso">0</div></div>
-                <div class="cell"><div class="cellType">Meta <span class="cellKey">( ; )</span></div><div class="cellCount" id="Meta">0</div></div>
-                <div class="cell"><div class="cellType">Myelo <span class="cellKey">( L )</span></div><div class="cellCount" id="Myelo">0</div></div>
-                <div class="cell"><div class="cellType">Pro <span class="cellKey">( K )</span></div><div class="cellCount" id="Pro">0</div></div>
-                <div class="cell"><div class="cellType">Blast <span class="cellKey">( J )</span></div><div class="cellCount" id="Blast">0</div></div>
-            </div>
-
-            <div id="totalWrapper">
-                <div class="totalCell">
-                    <div class="totalType">Total Count</div>
-                    <div class="totalCount" id="totalCount">0</div>
-                </div>
-            </div>
-        </div>
+    <!-- Caps Warning -->
+    <div id="capsLockWarning" style="display:none;">
+        Caps Lock is OFF — Please Turn It ON!
     </div>
 
-    <button id="resetButton" onclick="resetCounts()">Reset Counts</button>
+    <!-- Caps Lock Beep -->
+    <audio
+        id="capsBeep"
+        src="https://www.soundjay.com/buttons/sounds/beep-03.mp3"
+        preload="auto">
+    </audio>
 
+    <!-- Main Counter -->
+    <div id="computer">
+
+        <div id="screen">
+
+            <div id="cellsWrapper">
+
+                <div class="cell">
+                    <div class="cellType">
+                        Seg <span class="cellKey">( / )</span>
+                    </div>
+                    <div class="cellCount" id="Seg">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Band <span class="cellKey">( . )</span>
+                    </div>
+                    <div class="cellCount" id="Band">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Lymph <span class="cellKey">( , )</span>
+                    </div>
+                    <div class="cellCount" id="Lymph">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Mono <span class="cellKey">( M )</span>
+                    </div>
+                    <div class="cellCount" id="Mono">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Eos <span class="cellKey">( N )</span>
+                    </div>
+                    <div class="cellCount" id="Eos">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Baso <span class="cellKey">( B )</span>
+                    </div>
+                    <div class="cellCount" id="Baso">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Meta <span class="cellKey">( ; )</span>
+                    </div>
+                    <div class="cellCount" id="Meta">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Myelo <span class="cellKey">( L )</span>
+                    </div>
+                    <div class="cellCount" id="Myelo">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Pro <span class="cellKey">( K )</span>
+                    </div>
+                    <div class="cellCount" id="Pro">0</div>
+                </div>
+
+                <div class="cell">
+                    <div class="cellType">
+                        Blast <span class="cellKey">( J )</span>
+                    </div>
+                    <div class="cellCount" id="Blast">0</div>
+                </div>
+
+            </div>
+
+            <!-- Total Count -->
+            <div id="totalWrapper">
+
+                <div class="totalCell">
+
+                    <div class="totalType">
+                        Total Count
+                    </div>
+
+                    <div class="totalCount" id="totalCount">
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Reset Button -->
+    <button id="resetButton" onclick="resetCounts()">
+        Reset Counts
+    </button>
+
+    <!-- JavaScript -->
     <script src="script.js"></script>
 
 </body>
