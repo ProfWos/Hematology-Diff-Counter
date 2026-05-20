@@ -1,5 +1,6 @@
 let totalCount = 0;
 let beepPlayed = false;
+let audioUnlocked = false;
 
 const capsBeep = document.getElementById('capsBeep');
 
@@ -7,13 +8,19 @@ const keyMap = {
     "/": "Seg",
     ".": "Band",
     ",": "Lymph",
-    "m": "Mono", "M": "Mono",
-    "n": "Eos", "N": "Eos",
-    "b": "Baso", "B": "Baso",
+    "m": "Mono",
+    "M": "Mono",
+    "n": "Eos",
+    "N": "Eos",
+    "b": "Baso",
+    "B": "Baso",
     ";": "Meta",
-    "l": "Myelo", "L": "Myelo",
-    "k": "Pro", "K": "Pro",
-    "j": "Blast", "J": "Blast"
+    "l": "Myelo",
+    "L": "Myelo",
+    "k": "Pro",
+    "K": "Pro",
+    "j": "Blast",
+    "J": "Blast"
 };
 
 const spokenNames = {
@@ -30,88 +37,171 @@ const spokenNames = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+
     document.addEventListener('keydown', handleKeyDown);
+
     document.addEventListener('keyup', handleKeyUp);
+
     setupCellClicks();
+
 });
 
-function handleKeyDown(event) {
-    const cellType = keyMap[event.key];
+function enableSound() {
 
-    if (cellType) {
-        incrementCount(cellType);
-        updateTotalCount();
-        tryToSpeak(cellType);
-    }
-}
+    const AudioContext =
+        window.AudioContext || window.webkitAudioContext;
 
-function handleKeyUp(event) {
-    const capsWarning = document.getElementById('capsLockWarning');
-
-    if (event.getModifierState && event.getModifierState('CapsLock')) {
-        capsWarning.style.display = 'none';
-    } else {
-        capsWarning.style.display = 'block';
-
-        if (capsBeep) {
-            capsBeep.currentTime = 0;
-
-            capsBeep.play().catch(error => {
-                console.error("Caps Lock beep failed:", error);
-            });
-        }
-    }
-}
-
-function incrementCount(cellType) {
-    const countElement = document.getElementById(cellType);
-
-    const currentCount = parseInt(countElement.innerText) || 0;
-
-    countElement.innerText = currentCount + 1;
-}
-
-function updateTotalCount() {
-    totalCount = 0;
-
-    const cellCounts = document.querySelectorAll(".cellCount");
-
-    cellCounts.forEach(countElement => {
-        totalCount += parseInt(countElement.innerText) || 0;
-    });
-
-    document.getElementById("totalCount").innerText = totalCount;
-
-    // Play louder tone at exactly 100
-    if (totalCount === 100 && !beepPlayed) {
-        playCountTone();
-        beepPlayed = true;
-    }
-}
-
-function playCountTone() {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioContext = new AudioContext();
 
     const oscillator = audioContext.createOscillator();
+
     const gainNode = audioContext.createGain();
 
-    // Louder tone style
+    gainNode.gain.value = 0.001;
+
+    oscillator.connect(gainNode);
+
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start();
+
+    oscillator.stop(audioContext.currentTime + 0.05);
+
+    oscillator.onended = () => {
+
+        audioContext.close();
+
+        audioUnlocked = true;
+
+        alert("Sound enabled.");
+
+    };
+
+}
+
+function handleKeyDown(event) {
+
+    const cellType = keyMap[event.key];
+
+    if (cellType) {
+
+        incrementCount(cellType);
+
+        updateTotalCount();
+
+        tryToSpeak(cellType);
+
+    }
+
+}
+
+function handleKeyUp(event) {
+
+    const capsWarning =
+        document.getElementById('capsLockWarning');
+
+    if (
+        event.getModifierState &&
+        event.getModifierState('CapsLock')
+    ) {
+
+        capsWarning.style.display = 'none';
+
+    } else {
+
+        capsWarning.style.display = 'block';
+
+        if (capsBeep) {
+
+            capsBeep.currentTime = 0;
+
+            capsBeep.play().catch(error => {
+
+                console.error(
+                    "Caps Lock beep failed:",
+                    error
+                );
+
+            });
+
+        }
+
+    }
+
+}
+
+function incrementCount(cellType) {
+
+    const countElement =
+        document.getElementById(cellType);
+
+    const currentCount =
+        parseInt(countElement.innerText) || 0;
+
+    countElement.innerText = currentCount + 1;
+
+}
+
+function updateTotalCount() {
+
+    totalCount = 0;
+
+    const cellCounts =
+        document.querySelectorAll(".cellCount");
+
+    cellCounts.forEach(countElement => {
+
+        totalCount +=
+            parseInt(countElement.innerText) || 0;
+
+    });
+
+    document.getElementById("totalCount").innerText =
+        totalCount;
+
+    if (
+        totalCount === 100 &&
+        !beepPlayed &&
+        audioUnlocked
+    ) {
+
+        playCountTone();
+
+        beepPlayed = true;
+
+    }
+
+}
+
+function playCountTone() {
+
+    const AudioContext =
+        window.AudioContext || window.webkitAudioContext;
+
+    const audioContext = new AudioContext();
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gainNode =
+        audioContext.createGain();
+
     oscillator.type = "square";
 
-    // Tone pitch
     oscillator.frequency.value = 850;
 
-    // Volume
-    gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(
+        0.8,
+        audioContext.currentTime
+    );
 
-    // Smooth fade-out
     gainNode.gain.exponentialRampToValueAtTime(
         0.001,
         audioContext.currentTime + 0.6
     );
 
     oscillator.connect(gainNode);
+
     gainNode.connect(audioContext.destination);
 
     oscillator.start();
@@ -119,53 +209,84 @@ function playCountTone() {
     oscillator.stop(audioContext.currentTime + 0.6);
 
     oscillator.onended = () => {
+
         audioContext.close();
+
     };
+
 }
 
 function resetCounts() {
-    const cellCounts = document.querySelectorAll(".cellCount");
+
+    const cellCounts =
+        document.querySelectorAll(".cellCount");
 
     cellCounts.forEach(countElement => {
+
         countElement.innerText = '0';
+
     });
 
-    document.getElementById("totalCount").innerText = '0';
+    document.getElementById("totalCount").innerText =
+        '0';
 
     totalCount = 0;
+
     beepPlayed = false;
+
 }
 
 function tryToSpeak(cellType) {
-    const mute = document.getElementById('muteToggle');
 
-    if (!mute?.checked && window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance(
-            spokenNames[cellType] || cellType
-        );
+    const mute =
+        document.getElementById('muteToggle');
+
+    if (
+        !mute?.checked &&
+        window.speechSynthesis
+    ) {
+
+        const utterance =
+            new SpeechSynthesisUtterance(
+                spokenNames[cellType] || cellType
+            );
 
         utterance.rate = 2.0;
+
         utterance.pitch = 1;
+
         utterance.volume = 1;
 
         window.speechSynthesis.cancel();
+
         window.speechSynthesis.speak(utterance);
+
     }
+
 }
 
 function setupCellClicks() {
-    const cells = document.querySelectorAll('.cell');
+
+    const cells =
+        document.querySelectorAll('.cell');
 
     cells.forEach(cell => {
+
         const cellType = cell
             .querySelector('.cellType')
             .innerText
             .split(' ')[0];
 
         cell.addEventListener('click', () => {
+
             incrementCount(cellType);
+
             updateTotalCount();
+
             tryToSpeak(cellType);
+
         });
+
     });
+
 }
