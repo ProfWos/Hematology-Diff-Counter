@@ -55,6 +55,7 @@ function handleKeyUp(event) {
 
         if (capsBeep) {
             capsBeep.currentTime = 0;
+
             capsBeep.play().catch(error => {
                 console.error("Caps Lock beep failed:", error);
             });
@@ -64,7 +65,9 @@ function handleKeyUp(event) {
 
 function incrementCount(cellType) {
     const countElement = document.getElementById(cellType);
+
     const currentCount = parseInt(countElement.innerText) || 0;
+
     countElement.innerText = currentCount + 1;
 }
 
@@ -79,6 +82,7 @@ function updateTotalCount() {
 
     document.getElementById("totalCount").innerText = totalCount;
 
+    // Play louder tone at exactly 100
     if (totalCount === 100 && !beepPlayed) {
         playCountTone();
         beepPlayed = true;
@@ -92,17 +96,27 @@ function playCountTone() {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
-    oscillator.type = "sine";
-    oscillator.frequency.value = 1000;
+    // Louder tone style
+    oscillator.type = "square";
 
-    gainNode.gain.setValueAtTime(0.35, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.4);
+    // Tone pitch
+    oscillator.frequency.value = 850;
+
+    // Volume
+    gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+
+    // Smooth fade-out
+    gainNode.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + 0.6
+    );
 
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
     oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.4);
+
+    oscillator.stop(audioContext.currentTime + 0.6);
 
     oscillator.onended = () => {
         audioContext.close();
@@ -126,7 +140,10 @@ function tryToSpeak(cellType) {
     const mute = document.getElementById('muteToggle');
 
     if (!mute?.checked && window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance(spokenNames[cellType] || cellType);
+        const utterance = new SpeechSynthesisUtterance(
+            spokenNames[cellType] || cellType
+        );
+
         utterance.rate = 2.0;
         utterance.pitch = 1;
         utterance.volume = 1;
@@ -140,7 +157,10 @@ function setupCellClicks() {
     const cells = document.querySelectorAll('.cell');
 
     cells.forEach(cell => {
-        const cellType = cell.querySelector('.cellType').innerText.split(' ')[0];
+        const cellType = cell
+            .querySelector('.cellType')
+            .innerText
+            .split(' ')[0];
 
         cell.addEventListener('click', () => {
             incrementCount(cellType);
